@@ -20,6 +20,19 @@ def inspect_dataset(df):
     print("\n--- TIPOS DAS VARIÁVEIS ---")
     print(df.dtypes)
 
+def check_missing_values(df):
+    """Verifica a existência de valores ausentes no dataset."""
+
+    print("\n--- VALORES AUSENTES ---")
+    print(df.isnull().sum())
+
+
+def check_duplicates(df):
+    """Verifica a existência de registros duplicados no dataset."""
+
+    print("\n--- REGISTROS DUPLICADOS ---")
+    print(f"Quantidade de registros duplicados: {df.duplicated().sum()}")
+
 
 def main():
     df = load_data(DATA_PATH)
@@ -27,7 +40,8 @@ def main():
     print("Dataset carregado com sucesso!")
 
     inspect_dataset(df)
-
+    check_missing_values(df)
+    check_duplicates(df)
 
 if __name__ == "__main__":
     main()
