@@ -33,6 +33,33 @@ def check_duplicates(df):
     print("\n--- REGISTROS DUPLICADOS ---")
     print(f"Quantidade de registros duplicados: {df.duplicated().sum()}")
 
+def check_grade_ranges(df):
+    print("\n--- VERIFICAÇÃO DOS INTERVALOS DAS NOTAS ---")
+
+    for column in ["mid-term", "final"]:
+        minimum = df[column].min()
+        maximum = df[column].max()
+        invalid_values = df[(df[column] < 0) | (df[column] > 100)]
+
+        print(f"\n{column}:")
+        print(f"Menor valor observado: {minimum}")
+        print(f"Maior valor observado: {maximum}")
+        print(f"Valores fora do intervalo 0-100: {len(invalid_values)}")
+
+
+def analyze_grades(df):
+
+    print("\n--- ESTATÍSTICAS DESCRITIVAS DAS NOTAS ---")
+    print(df[["mid-term", "final"]].describe())
+
+
+def analyze_categorical_variables(df):
+
+    print("\n--- DISTRIBUIÇÃO POR FACULTY ---")
+    print(df["faculty"].value_counts())
+
+    print("\n--- DISTRIBUIÇÃO POR DEPARTMENT ---")
+    print(df["department"].value_counts())
 
 def main():
     df = load_data(DATA_PATH)
@@ -42,6 +69,9 @@ def main():
     inspect_dataset(df)
     check_missing_values(df)
     check_duplicates(df)
+    check_grade_ranges(df)
+    analyze_grades(df)
+    analyze_categorical_variables(df)
 
 if __name__ == "__main__":
     main()
