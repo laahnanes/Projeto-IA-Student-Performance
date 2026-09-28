@@ -12,8 +12,8 @@ utilizando o dataset original disponibilizado como material suplementar do artig
 | Integrante | Conta no GitHub | Responsabilidade inicial |
 | --- | --- | --- |
 | Larah Nanes | `@laahnanes` | Pré-processamento — Parte 1: análise e limpeza dos dados |
-| Ana Júlia Fi | `@ailuj97` | Pré-processamento — Parte 2: transformação e discretização dos dados |
-| Beatriz | `@bibisouza` | Validação e documentação do pré-processamento |
+| Ana Júlia Figueredo | `@ailuj97` | Pré-processamento — Parte 2: transformação e discretização dos dados |
+| Beatriz Silva | `@bibisouza` | Validação e documentação do pré-processamento |
 
 ## Descrição geral
 
