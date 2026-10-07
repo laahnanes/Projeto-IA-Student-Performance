@@ -1,0 +1,319 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Relatório de Modelagem - SVM</title>
+  </head>
+
+  <body>
+    <h1>Relatório de Modelagem - Support Vector Machine (SVM)</h1>
+
+    <h2>1. Objetivo</h2>
+
+    <p>
+      Esta etapa teve como objetivo implementar e avaliar um modelo Support
+      Vector Machine (SVM) para a previsão do desempenho acadêmico dos
+      estudantes, tomando como referência o procedimento experimental
+      apresentado no estudo de Yağcı (2022).
+    </p>
+
+    <p>
+      Inicialmente, buscou-se estabelecer um modelo baseline que permitisse
+      comparar os resultados obtidos na implementação em Python com os
+      resultados reportados no estudo original. Posteriormente, esse baseline
+      será utilizado como referência para experimentos de otimização do modelo.
+    </p>
+
+    <h2>2. Dataset utilizado</h2>
+
+    <p>
+      Foi utilizado o dataset resultante da etapa de pré-processamento do
+      projeto, armazenado em:
+    </p>
+
+    <pre>data/processed/students_performance_processed.csv</pre>
+
+    <p>
+      O conjunto possui 1.854 registros. Durante o pré-processamento, as notas
+      foram discretizadas de acordo com os intervalos utilizados no estudo de
+      referência, resultando nas variáveis <code>mid_term_class</code> e
+      <code>final_class</code>.
+    </p>
+
+    <p>
+      As variáveis categóricas referentes à faculdade e ao departamento também
+      foram codificadas durante o pré-processamento, originando
+      <code>faculty_encoded</code> e <code>department_encoded</code>.
+    </p>
+
+    <h2>3. Definição das variáveis</h2>
+
+    <p>
+      Para a implementação baseline do SVM foram utilizadas três variáveis de
+      entrada:
+    </p>
+
+    <ul>
+      <li>
+        <code>mid_term_class</code> - classe da nota da avaliação intermediária;
+      </li>
+      <li>
+        <code>faculty_encoded</code> - representação codificada da faculdade;
+      </li>
+      <li>
+        <code>department_encoded</code> - representação codificada do
+        departamento.
+      </li>
+    </ul>
+
+    <p>A variável alvo utilizada foi:</p>
+
+    <ul>
+      <li>
+        <code>final_class</code> - classe correspondente ao desempenho final do
+        estudante.
+      </li>
+    </ul>
+
+    <p>
+      O identificador <code>stdID</code> não foi utilizado como atributo
+      preditor. Da mesma forma, a nota final original não foi incluída entre as
+      entradas, evitando que informações diretamente relacionadas ao alvo fossem
+      fornecidas ao modelo.
+    </p>
+
+    <h2>4. Implementação do modelo baseline</h2>
+
+    <p>
+      O modelo foi implementado utilizando a classe <code>SVC</code> da
+      biblioteca scikit-learn. Como o estudo original não apresenta de forma
+      suficientemente detalhada todos os hiperparâmetros utilizados na
+      configuração do SVM, foram mantidos os parâmetros padrão da implementação
+      do scikit-learn nesta etapa baseline.
+    </p>
+
+    <p>
+      Foi habilitada a opção <code>probability=True</code> para possibilitar a
+      obtenção das probabilidades necessárias ao cálculo do AUC.
+    </p>
+
+    <pre>SVC(probability=True)</pre>
+
+    <h2>5. Estratégia de validação</h2>
+
+    <p>
+      Seguindo o estudo de referência, foi adotada validação cruzada com 10
+      folds.
+    </p>
+
+    <p>
+      Durante os testes iniciais, a utilização direta de 10 folds sem
+      embaralhamento apresentou grande variação de desempenho entre os folds.
+      Com a representação baseada em <code>mid_term_class</code> e codificação
+      numérica das variáveis categóricas, a acurácia média obtida foi de
+      aproximadamente 0,584.
+    </p>
+
+    <p>
+      Para tornar a divisão mais estável e preservar a proporção das classes,
+      foi adotado <code>StratifiedKFold</code> com 10 divisões, embaralhamento
+      dos registros e semente fixa:
+    </p>
+
+    <pre>
+StratifiedKFold(
+    n_splits=10,
+    shuffle=True,
+    random_state=42
+)
+    </pre>
+
+    <p>
+      A utilização de <code>shuffle=True</code> e
+      <code>random_state=42</code> constitui uma decisão metodológica desta
+      implementação, permitindo maior estabilidade e reprodutibilidade da
+      divisão dos dados.
+    </p>
+
+    <h2>6. Experimentos preliminares</h2>
+
+    <p>
+      Antes da definição do baseline, foram realizados experimentos preliminares
+      para observar o efeito de diferentes representações dos dados e
+      estratégias de validação.
+    </p>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Configuração</th>
+          <th>Acurácia média</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            mid_term_class + Label Encoding + validação cruzada sem shuffle
+          </td>
+          <td>0,584</td>
+        </tr>
+
+        <tr>
+          <td>
+            mid_term_class + One-Hot Encoding + validação cruzada sem shuffle
+          </td>
+          <td>0,404</td>
+        </tr>
+
+        <tr>
+          <td>
+            mid_term_class + Label Encoding + validação cruzada estratificada
+            com shuffle
+          </td>
+          <td>0,639</td>
+        </tr>
+
+        <tr>
+          <td>
+            mid-term original + Label Encoding + validação cruzada estratificada
+            com shuffle
+          </td>
+          <td>0,660</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <p>
+      O experimento com a nota intermediária original (<code>mid-term</code>)
+      apresentou acurácia superior, de 0,660. Entretanto, para o baseline de
+      reprodução foi mantida a variável
+      <code>mid_term_class</code>, considerando a etapa de discretização
+      descrita no estudo de referência e já reproduzida durante o
+      pré-processamento do projeto.
+    </p>
+
+    <p>
+      O teste com One-Hot Encoding foi considerado apenas um experimento
+      preliminar e não foi adotado na configuração baseline. Novos testes
+      envolvendo representação das variáveis categóricas poderão ser realizados
+      posteriormente durante a etapa de otimização.
+    </p>
+
+    <h2>7. Métricas de avaliação</h2>
+
+    <p>O modelo foi avaliado utilizando as seguintes métricas:</p>
+
+    <ul>
+      <li>Acurácia (Accuracy);</li>
+      <li>Precisão (Precision);</li>
+      <li>Recall;</li>
+      <li>F1-score;</li>
+      <li>Área sob a curva ROC (AUC).</li>
+    </ul>
+
+    <p>
+      Para Precision, Recall e F1-score foi utilizada a média ponderada
+      (<code>weighted</code>), considerando a distribuição desigual das classes
+      no conjunto de dados.
+    </p>
+
+    <p>
+      Para o problema multiclasse, o AUC foi calculado utilizando a estratégia
+      One-vs-Rest ponderada:
+    </p>
+
+    <pre>roc_auc_ovr_weighted</pre>
+
+    <p>
+      Essas formas de agregação constituem decisões da implementação atual, uma
+      vez que o estudo de referência não detalha suficientemente a forma de
+      agregação das métricas para permitir uma reprodução exata desse aspecto.
+    </p>
+
+    <h2>8. Resultados do baseline</h2>
+
+    <p>
+      A configuração definida como baseline apresentou os seguintes resultados
+      médios na validação cruzada:
+    </p>
+
+    <table border="1" cellpadding="6" cellspacing="0">
+      <thead>
+        <tr>
+          <th>Métrica</th>
+          <th>Baseline implementado</th>
+          <th>Estudo de referência</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr>
+          <td>Acurácia</td>
+          <td>0,639</td>
+          <td>0,735</td>
+        </tr>
+
+        <tr>
+          <td>Precisão</td>
+          <td>0,580</td>
+          <td>0,735</td>
+        </tr>
+
+        <tr>
+          <td>Recall</td>
+          <td>0,639</td>
+          <td>0,735</td>
+        </tr>
+
+        <tr>
+          <td>F1-score</td>
+          <td>0,593</td>
+          <td>0,704</td>
+        </tr>
+
+        <tr>
+          <td>AUC</td>
+          <td>0,726</td>
+          <td>0,804</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>9. Observações sobre os resultados</h2>
+
+    <p>
+      Os resultados obtidos não reproduziram numericamente os valores
+      apresentados no estudo original. Entre as possíveis fontes de diferença
+      está o fato de o estudo de referência ter realizado seus experimentos
+      utilizando o ambiente Orange, enquanto a presente implementação utiliza
+      Python e scikit-learn.
+    </p>
+
+    <p>
+      Além disso, nem todos os detalhes necessários para reproduzir exatamente a
+      configuração do SVM são especificados no estudo, como a configuração
+      completa dos hiperparâmetros e determinados detalhes do procedimento de
+      validação.
+    </p>
+
+    <p>
+      Durante a avaliação também foram observados avisos relacionados à precisão
+      de determinadas classes. Em alguns folds, o modelo não realizou predições
+      para uma ou mais classes, indicando dificuldade na classificação das
+      classes menos representadas. Esse comportamento deve ser considerado na
+      análise dos resultados e nos experimentos de otimização.
+    </p>
+
+    <h2>10. Estratégia de Otimização</h2>
+
+    <h2>11. Referência</h2>
+
+    <p>
+      YAĞCI, Mustafa. Educational data mining: prediction of students' academic
+      performance using machine learning algorithms.
+      <em>Smart Learning Environments</em>, v. 9, art. 11, 2022. DOI:
+      10.1186/s40561-022-00192-z.
+    </p>
+  </body>
+</html>
