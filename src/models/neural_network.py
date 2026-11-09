@@ -1,15 +1,3 @@
-"""Modelagem — Neural Network (MLP).
-
-Replica o experimento de Yağcı (2022) com uma rede neural:
-- Entradas: mid_term_class, faculty e department (todas categóricas -> One-Hot).
-- Alvo: final_class (4 classes).
-- Avaliação: validação cruzada estratificada com 10 folds.
-- Métricas: acurácia, precisão, recall, F1 (média ponderada) e AUC (one-vs-rest ponderado).
-
-Uso, a partir da raiz do projeto:
-    python src/models/neural_network.py
-"""
-
 import json
 from pathlib import Path
 
